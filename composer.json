@@ -1,0 +1,92 @@
+{
+  "name": "skim/auth",
+  "description": "Authentication, email verification, password reset, and social login for SKIM applications.",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "skim/framework": "^0.1",
+    "league/oauth2-client": "^2.7"
+  },
+  "require-dev": {
+    "pestphp/pest": "^3.0"
+  },
+  "suggest": {
+    "skim/mailer": "Required for email verification and password reset",
+    "league/oauth2-google": "Google social login",
+    "league/oauth2-github": "GitHub social login",
+    "league/oauth2-facebook": "Facebook social login"
+  },
+  "autoload": {
+    "psr-4": {
+      "Skim\\Auth\\": "src/"
+    }
+  },
+  "extra": {
+    "skim": {
+      "extension": "Skim\\Auth\\AuthExtension",
+      "provides": [
+        "auth"
+      ],
+      "requires": [
+        "session"
+      ],
+      "capabilities": {
+        "auth": {
+          "strategies": [
+            "session",
+            "api-token"
+          ],
+          "middleware": "auth_middleware",
+          "routes_prefix": "/auth"
+        },
+        "oauth": {
+          "providers": [
+            "google",
+            "github",
+            "facebook"
+          ]
+        },
+        "session-auth": {},
+        "email-verification": {
+          "routes": [
+            "/email/verify",
+            "/email/resend"
+          ]
+        },
+        "password-reset": {
+          "routes": [
+            "/forgot-password",
+            "/reset-password"
+          ]
+        },
+        "rate-limiting": {
+          "applies_to": [
+            "POST /login"
+          ]
+        }
+      },
+      "commands": {
+        "auth:publish": "Skim\\Auth\\Cli\\AuthPublishCommand"
+      },
+      "env": [
+        "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT_SECRET",
+        "GITHUB_CLIENT_ID",
+        "GITHUB_CLIENT_SECRET",
+        "FACEBOOK_CLIENT_ID",
+        "FACEBOOK_CLIENT_SECRET"
+      ],
+      "post_install": [
+        "Run: php skim auth:publish all",
+        "Add social provider keys to .env to enable social login",
+        "Run: php skim migrate:status to verify migrations"
+      ]
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}
